@@ -1,6 +1,7 @@
 {
   "LazyVim": { "branch": "main", "commit": "b9d38f692015fecaa72d55282b74a3d601e4c9fa" },
   "LuaSnip": { "branch": "master", "commit": "73813308abc2eaeff2bc0d3f2f79270c491be9d7" },
+  "baleia.nvim": { "branch": "main", "commit": "32617940adb2eea56e85a64883a19961ceac9641" },
   "black": { "branch": "main", "commit": "82030302ea3d70f233d418d9abd3645d543a400c" },
   "cmp-buffer": { "branch": "main", "commit": "b74fab3656eea9de20a9b8116afa3cfc4ec09657" },
   "cmp-emoji": { "branch": "main", "commit": "e8398e2adf512a03bb4e1728ca017ffeac670a9f" },

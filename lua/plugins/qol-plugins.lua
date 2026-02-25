@@ -149,6 +149,11 @@ return {
   { "ahmedkhalf/project.nvim" },
   { "stevearc/oil.nvim" },
   {
+    "m00qek/baleia.nvim",
+    lazy = true,
+    cmd = { "BaleiaColorize" },
+  },
+  {
     "folke/todo-comments.nvim",
     config = true, -- Uses defaults; customize as needed (see docs)
   },
