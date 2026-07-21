@@ -9,6 +9,74 @@ local excluded_projects = {
 }
 
 local projects = {}
+local dashboard_highlight_ns = vim.api.nvim_create_namespace("MovimDashboardProjects")
+-- dashboard-nvim paints the complete footer at priority 4096. These marks
+-- intentionally sit above that footer layer while remaining buffer-local.
+local dashboard_highlight_priority = 8192
+
+local function setup_dashboard_highlights()
+  -- Keep these local to dashboard content; the global VSCode colorscheme and
+  -- plugin highlights remain untouched.
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectHeading", { fg = "#569CD6", bold = true })
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectKey", { fg = "#C586C0", bold = true })
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectName", { fg = "#D4D4D4" })
+  vim.api.nvim_set_hl(0, "MovimDashboardIinvy", { fg = "#4EC9B0", bold = true })
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectAge", { fg = "#808080", italic = true })
+end
+
+local function highlight_dashboard_projects(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return
+  end
+
+  setup_dashboard_highlights()
+  vim.api.nvim_buf_clear_namespace(buf, dashboard_highlight_ns, 0, -1)
+
+  for row, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
+    local heading_start = line:find("Recent Git Projects", 1, true)
+    if heading_start then
+      local content_start = line:find("%S") or heading_start
+      vim.api.nvim_buf_set_extmark(buf, dashboard_highlight_ns, row - 1, content_start - 1, {
+        end_col = #line,
+        hl_group = "MovimDashboardProjectHeading",
+        priority = dashboard_highlight_priority,
+        hl_mode = "replace",
+      })
+    end
+
+    local key, name, age = line:match("%[([i%d])%]%s+(%S+)%s*(%S*)$")
+    if key and name then
+      local key_start = line:find("[" .. key .. "]", 1, true)
+      local name_start = line:find(name, key_start + #key + 2, true)
+      if key_start and name_start then
+        vim.api.nvim_buf_set_extmark(buf, dashboard_highlight_ns, row - 1, key_start - 1, {
+          end_col = key_start + #key + 1,
+          hl_group = "MovimDashboardProjectKey",
+          priority = dashboard_highlight_priority,
+          hl_mode = "replace",
+        })
+        vim.api.nvim_buf_set_extmark(buf, dashboard_highlight_ns, row - 1, name_start - 1, {
+          end_col = name_start - 1 + #name,
+          hl_group = key == "i" and "MovimDashboardIinvy" or "MovimDashboardProjectName",
+          priority = dashboard_highlight_priority,
+          hl_mode = "replace",
+        })
+      end
+
+      if age ~= "" then
+        local age_start = line:find(age, name_start + #name, true)
+        if age_start then
+          vim.api.nvim_buf_set_extmark(buf, dashboard_highlight_ns, row - 1, age_start - 1, {
+            end_col = age_start - 1 + #age,
+            hl_group = "MovimDashboardProjectAge",
+            priority = dashboard_highlight_priority,
+            hl_mode = "replace",
+          })
+        end
+      end
+    end
+  end
+end
 
 local function read_cache()
   local ok, lines = pcall(vim.fn.readfile, cache_path)
@@ -146,6 +214,14 @@ end
 
 function M.setup_dashboard_mappings()
   local group = vim.api.nvim_create_augroup("MovimDashboardProjects", { clear = true })
+  vim.api.nvim_create_autocmd("User", {
+    group = group,
+    pattern = "DashboardLoaded",
+    callback = function()
+      highlight_dashboard_projects(vim.api.nvim_get_current_buf())
+    end,
+  })
+
   vim.api.nvim_create_autocmd("FileType", {
     group = group,
     pattern = "dashboard",
