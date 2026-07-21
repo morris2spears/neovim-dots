@@ -13,8 +13,9 @@ vim.opt.undofile       = true                -- Enables persistent undos
 vim.opt.number         = true                -- Show line numbers
 vim.opt.relativenumber = true                -- Show relative line numbers
 vim.opt.scrolloff      = 8                   -- Minimum number of lines to keep above and below cursor
--- vim.opt.guifont        = "Cascadia Code:h10" -- Editor Font
--- vim.opt.guifont        = "CaskaydiaMono Nerd Font:h10" -- Editor Font
+if vim.g.neovide then
+  vim.opt.guifont = "CaskaydiaCove Nerd Font Mono:h13"
+end
 vim.opt.textwidth      = 0                   -- Disable automatic text wrapping (0 = no limit)
 vim.opt.swapfile       = false               -- Enable/Disable Swap file
 vim.opt.pumblend       = 20                  -- Psuedo transparency for the popup-menu
@@ -30,4 +31,3 @@ vim.opt.foldcolumn     = '0'                 -- Hide fold column (set to '1' to 
 vim.opt.foldlevel      = 99                  -- Using ufo provider need a large value, feel free to decrease
 vim.opt.foldlevelstart = 99                  -- Start with all folds open
 vim.opt.foldenable     = true                -- Enable folding
-
