@@ -15,6 +15,31 @@ vim.opt.relativenumber = true                -- Show relative line numbers
 vim.opt.scrolloff      = 8                   -- Minimum number of lines to keep above and below cursor
 if vim.g.neovide then
   vim.opt.guifont = "CaskaydiaCove Nerd Font Mono:h13"
+
+  local function update_neovide_title()
+    local cwd = vim.fn.getcwd()
+    local home = vim.fs.normalize(vim.fn.expand("~"))
+    local title
+
+    if vim.fs.normalize(cwd) == home then
+      title = "~"
+    elseif cwd == "/" then
+      title = "/"
+    else
+      title = vim.fs.basename(cwd)
+    end
+
+    vim.opt.title = true
+    vim.opt.titlestring = title
+  end
+
+  local title_group = vim.api.nvim_create_augroup("MovimNeovideCwdTitle", { clear = true })
+  vim.api.nvim_create_autocmd({ "VimEnter", "DirChanged" }, {
+    group = title_group,
+    callback = update_neovide_title,
+    desc = "Use the current directory for the Neovide window title",
+  })
+  update_neovide_title()
 end
 vim.opt.textwidth      = 0                   -- Disable automatic text wrapping (0 = no limit)
 vim.opt.swapfile       = false               -- Enable/Disable Swap file

@@ -82,7 +82,7 @@ local function relative_age(timestamp)
   return math.floor(seconds / 604800) .. "w"
 end
 
-function M.shortcuts()
+local function refresh_projects()
   local cache = read_cache()
   local email = git_output(project_roots[1], { "config", "user.email" })
   local refreshed = {}
@@ -124,20 +124,44 @@ function M.shortcuts()
     end
     return a.timestamp > b.timestamp
   end)
+end
 
-  local shortcuts = {}
+function M.dashboard_lines()
+  refresh_projects()
+
+  local lines = { "󰏓  Recent Git Projects", "" }
   for index, project in ipairs(projects) do
     if index > max_projects then
       break
     end
-    table.insert(shortcuts, {
-      desc = string.format("Recent Git  %-24s %s", project.name, relative_age(project.timestamp)),
-      group = "DashboardDesc",
-      key = tostring(index),
-      action = string.format("lua require('movim.recent-projects').open(%d)", index),
-    })
+    table.insert(lines, string.format("[%d]  %-28s %s", index, project.name, relative_age(project.timestamp)))
   end
-  return shortcuts
+
+  if #projects == 0 then
+    table.insert(lines, "No recent Git projects found")
+  end
+
+  return lines
+end
+
+function M.setup_dashboard_mappings()
+  local group = vim.api.nvim_create_augroup("MovimDashboardProjects", { clear = true })
+  vim.api.nvim_create_autocmd("FileType", {
+    group = group,
+    pattern = "dashboard",
+    callback = function(event)
+      for index = 1, max_projects do
+        vim.keymap.set("n", tostring(index), function()
+          M.open(index)
+        end, { buffer = event.buf, nowait = true, desc = "Open recent Git project " .. index })
+      end
+
+      vim.keymap.set("n", "i", function()
+        vim.api.nvim_set_current_dir(vim.fn.expand("~/dev/iinvy"))
+        vim.cmd("Neogit")
+      end, { buffer = event.buf, nowait = true, desc = "Open iinvy in Neogit" })
+    end,
+  })
 end
 
 function M.open(index)
