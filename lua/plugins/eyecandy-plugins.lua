@@ -89,45 +89,48 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       local dashboard = require("dashboard")
-      
+      local shortcuts = {
+        {
+          desc = "Main Project (iinvy)",
+          group = "DashboardDesc",
+          key = "i",
+          action = "cd ~/dev/iinvy | Neogit",
+        },
+        {
+          desc = "Neovim Config",
+          group = "DashboardDesc",
+          key = "n",
+          action = "cd ~/.config/nvim | e ~/.config/nvim/init.lua",
+        },
+        {
+          desc = "Recent Files",
+          group = "DashboardDesc",
+          key = "r",
+          action = "Telescope oldfiles",
+        },
+        {
+          desc = "Find File (Spc F S)",
+          group = "DashboardDesc",
+          key = "f",
+          action = "Telescope find_files",
+        },
+      }
+
+      vim.list_extend(shortcuts, require("movim.recent-projects").shortcuts())
+      table.insert(shortcuts, {
+        desc = "Quit",
+        group = "DashboardDesc",
+        key = "q",
+        action = "quit",
+      })
+
       dashboard.setup({
         theme = "hyper",
         config = {
           week_header = {
             enable = true,
           },
-          shortcut = {
-            {
-              desc = "Main Project (iinvy)",
-              group = "DashboardDesc",
-              key = "i",
-              action = "cd ~/dev/iinvy | Telescope find_files",
-            },
-            {
-              desc = "Neovim Config",
-              group = "DashboardDesc",
-              key = "n",
-              action = "cd ~/.config/nvim | e ~/.config/nvim/init.lua",
-            },
-            {
-              desc = "Recent Files",
-              group = "DashboardDesc",
-              key = "r",
-              action = "Telescope oldfiles",
-            },
-            {
-              desc = "Find File (Spc F S)",
-              group = "DashboardDesc",
-              key = "f",
-              action = "Telescope find_files",
-            },
-            {
-              desc = "Quit",
-              group = "DashboardDesc",
-              key = "q",
-              action = "quit",
-            },
-          },
+          shortcut = shortcuts,
           footer = function()
             return { "", "🚀 Let's build something cool" }
           end,
