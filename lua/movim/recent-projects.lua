@@ -129,7 +129,7 @@ end
 function M.dashboard_lines()
   refresh_projects()
 
-  local lines = { "󰏓  Recent Git Projects", "" }
+  local lines = { "󰏓  Recent Git Projects", "", "[i]  iinvy" }
   for index, project in ipairs(projects) do
     if index > max_projects then
       break
