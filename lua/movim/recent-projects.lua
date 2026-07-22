@@ -44,7 +44,7 @@ local function highlight_dashboard_projects(buf)
       })
     end
 
-    local key, name, age = line:match("%[([i%d])%]%s+(%S+)%s*(%S*)$")
+    local key, name, age = line:match("%[([in%d])%]%s+(%S+)%s*(%S*)$")
     if key and name then
       local key_start = line:find("[" .. key .. "]", 1, true)
       local name_start = line:find(name, key_start + #key + 2, true)
@@ -197,7 +197,7 @@ end
 function M.dashboard_lines()
   refresh_projects()
 
-  local lines = { "󰏓  Recent Git Projects", "", "[i]  iinvy" }
+  local lines = { "󰏓  Recent Git Projects", "", "[i]  iinvy", "[n]  nvim-config" }
   for index, project in ipairs(projects) do
     if index > max_projects then
       break
@@ -236,6 +236,11 @@ function M.setup_dashboard_mappings()
         vim.api.nvim_set_current_dir(vim.fn.expand("~/dev/iinvy"))
         vim.cmd("Neogit")
       end, { buffer = event.buf, nowait = true, desc = "Open iinvy in Neogit" })
+
+      vim.keymap.set("n", "n", function()
+        vim.api.nvim_set_current_dir(vim.fn.stdpath("config"))
+        vim.cmd("Neogit")
+      end, { buffer = event.buf, nowait = true, desc = "Open Neovim config in Neogit" })
     end,
   })
 end
