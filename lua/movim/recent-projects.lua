@@ -16,12 +16,14 @@ local dashboard_highlight_priority = 8192
 
 local function setup_dashboard_highlights()
   -- Keep these local to dashboard content; the global VSCode colorscheme and
-  -- plugin highlights remain untouched.
-  vim.api.nvim_set_hl(0, "MovimDashboardProjectHeading", { fg = "#569CD6", bold = true })
-  vim.api.nvim_set_hl(0, "MovimDashboardProjectKey", { fg = "#C586C0", bold = true })
-  vim.api.nvim_set_hl(0, "MovimDashboardProjectName", { fg = "#D4D4D4" })
-  vim.api.nvim_set_hl(0, "MovimDashboardIinvy", { fg = "#4EC9B0", bold = true })
-  vim.api.nvim_set_hl(0, "MovimDashboardProjectAge", { fg = "#808080", italic = true })
+  -- plugin highlights remain untouched. Colors match the polybar palette used
+  -- in lua/movim/palette-highlights.lua (purple heading, orange key/accent,
+  -- lavender name, muted age).
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectHeading", { fg = "#7B5EA7", bold = true })
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectKey", { fg = "#E8875B", bold = true })
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectName", { fg = "#C8C0D8" })
+  vim.api.nvim_set_hl(0, "MovimDashboardIinvy", { fg = "#E8875B", bold = true })
+  vim.api.nvim_set_hl(0, "MovimDashboardProjectAge", { fg = "#4A4560", italic = true })
 end
 
 local function highlight_dashboard_projects(buf)

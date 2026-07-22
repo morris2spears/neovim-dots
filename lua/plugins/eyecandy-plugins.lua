@@ -108,13 +108,9 @@ return {
           end,
         },
       })
-      
-      -- Set colors to match VSCode dark theme
-      vim.api.nvim_set_hl(0, "DashboardHeader", { fg = "#569CD6" })  -- VSCode blue
-      vim.api.nvim_set_hl(0, "DashboardCenter", { fg = "#FFFFFF" })  -- White
-      vim.api.nvim_set_hl(0, "DashboardFooter", { fg = "#608B4E" })  -- VSCode green
-      vim.api.nvim_set_hl(0, "DashboardDesc", { fg = "#FFFFFF" })    -- White
-      vim.api.nvim_set_hl(0, "DashboardKey", { fg = "#C586C0" })     -- VSCode purple
+
+      -- Dashboard highlight colors live in lua/movim/palette-highlights.lua
+      -- (polybar palette, applied via a ColorScheme autocmd).
     end,
   },
 }
