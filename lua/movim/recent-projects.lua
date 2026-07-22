@@ -24,6 +24,9 @@ local function setup_dashboard_highlights()
   vim.api.nvim_set_hl(0, "MovimDashboardProjectName", { fg = "#C8C0D8" })
   vim.api.nvim_set_hl(0, "MovimDashboardIinvy", { fg = "#E8875B", bold = true })
   vim.api.nvim_set_hl(0, "MovimDashboardProjectAge", { fg = "#4A4560", italic = true })
+  -- hyper theme hardcodes the startup-stats lines to the `Comment` group
+  -- (green in vscode.nvim); repaint them muted to match DashboardFooter.
+  vim.api.nvim_set_hl(0, "MovimDashboardStartup", { fg = "#4A4560" })
 end
 
 local function highlight_dashboard_projects(buf)
@@ -35,6 +38,19 @@ local function highlight_dashboard_projects(buf)
   vim.api.nvim_buf_clear_namespace(buf, dashboard_highlight_ns, 0, -1)
 
   for row, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
+    -- Startup stats lines (hyper theme paints these with `Comment` = green).
+    if line:match("^%s*Startuptime:") or line:match("^%s*Plugins:") or line:match("^%s*neovim loaded ") then
+      local content_start = line:find("%S")
+      if content_start then
+        vim.api.nvim_buf_set_extmark(buf, dashboard_highlight_ns, row - 1, content_start - 1, {
+          end_col = #line,
+          hl_group = "MovimDashboardStartup",
+          priority = dashboard_highlight_priority,
+          hl_mode = "replace",
+        })
+      end
+    end
+
     local heading_start = line:find("Recent Git Projects", 1, true)
     if heading_start then
       local content_start = line:find("%S") or heading_start
