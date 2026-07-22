@@ -118,12 +118,60 @@ vim.api.nvim_set_keymap('n', '<leader>cp', ':lua copy_file_path()<CR>', { norema
 
 -- Neovide Font Scaling --
 if vim.g.neovide then
-  vim.g.neovide_scale_factor = 1.0
+  -- The zoom level is remembered between restarts in this file
+  local scale_file = vim.fn.stdpath("data") .. "/neovide_scale_factor"
+  local min_scale, max_scale = 0.3, 5.0
 
+  local function clamp_scale(scale)
+    return math.min(math.max(scale, min_scale), max_scale)
+  end
+
+  -- Read the saved scale, falling back to 1.0 if it is missing or corrupt
+  local function load_scale_factor()
+    if vim.fn.filereadable(scale_file) == 0 then
+      return 1.0
+    end
+    local ok, lines = pcall(vim.fn.readfile, scale_file)
+    local scale = ok and tonumber(lines[1] or "")
+    if not scale then
+      return 1.0
+    end
+    return clamp_scale(scale)
+  end
+
+  local saved_scale
+  local function save_scale_factor()
+    local scale = tonumber(vim.g.neovide_scale_factor)
+    if not scale or scale == saved_scale then
+      return
+    end
+    saved_scale = clamp_scale(scale)
+    pcall(vim.fn.writefile, { string.format("%.4f", saved_scale) }, scale_file)
+  end
+
+  vim.g.neovide_scale_factor = load_scale_factor()
+  saved_scale = vim.g.neovide_scale_factor
+
+  local save_timer
   local function change_scale_factor(delta)
-    vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
+    vim.g.neovide_scale_factor = clamp_scale(vim.g.neovide_scale_factor * delta)
+    -- Debounce so holding the key down does not write on every step
+    if save_timer then
+      save_timer:stop()
+    end
+    save_timer = vim.defer_fn(save_scale_factor, 300)
   end
 
   vim.keymap.set("n", "<C-=>", function() change_scale_factor(1.1) end, { noremap = true, silent = true, desc = "Neovide: Increase font size" })
+  vim.keymap.set("n", "<C-+>", function() change_scale_factor(1.1) end, { noremap = true, silent = true, desc = "Neovide: Increase font size" })
   vim.keymap.set("n", "<C-->", function() change_scale_factor(1/1.1) end, { noremap = true, silent = true, desc = "Neovide: Decrease font size" })
+  vim.keymap.set("n", "<C-0>", function() change_scale_factor(1.0 / vim.g.neovide_scale_factor) end, { noremap = true, silent = true, desc = "Neovide: Reset font size" })
+
+  -- Catch scale changes made outside the keymaps (Ctrl+scroll) and on quit
+  local scale_group = vim.api.nvim_create_augroup("MovimNeovideScale", { clear = true })
+  vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI", "FocusLost", "VimLeavePre" }, {
+    group = scale_group,
+    callback = save_scale_factor,
+    desc = "Persist the Neovide scale factor",
+  })
 end
