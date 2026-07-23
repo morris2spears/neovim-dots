@@ -20,10 +20,35 @@ return {
     "nvim-lualine/lualine.nvim",
     config = function()
       local lualine = require('lualine')
+
+      -- Polybar-palette statusline: mode reads purple/orange, sections sit on
+      -- bg_alt, matches lua/movim/palette-highlights.lua.
+      local pal = { purple = "#7B5EA7", orange = "#E8875B", lavender = "#C8C0D8",
+                    bg = "#0B0E14", bg_alt = "#151926", muted = "#4A4560", red = "#E84545" }
+      local mode = function(fg)
+        return {
+          a = { fg = pal.bg, bg = fg, gui = "bold" },
+          b = { fg = pal.lavender, bg = pal.bg_alt },
+          c = { fg = pal.muted, bg = pal.bg },
+        }
+      end
+      local palette_theme = {
+        normal   = mode(pal.purple),
+        insert   = mode(pal.orange),
+        visual   = mode(pal.lavender),
+        replace  = mode(pal.red),
+        command  = mode(pal.orange),
+        inactive = {
+          a = { fg = pal.muted, bg = pal.bg },
+          b = { fg = pal.muted, bg = pal.bg },
+          c = { fg = pal.muted, bg = pal.bg },
+        },
+      }
+
       lualine.setup({
         options = {
           icons_enabled = true,
-          theme = "auto",
+          theme = palette_theme,
           component_separators = { left = "", right = "" },
           section_separators = { left = "", right = "" },
           always_divide_middle = true,
